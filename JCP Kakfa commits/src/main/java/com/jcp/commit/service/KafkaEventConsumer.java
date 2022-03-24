@@ -3,27 +3,24 @@ package com.jcp.commit.kafka.service;
 
 import com.azure.messaging.eventhubs.EventData;
 import com.jcp.commit.event.AbstractKafkaConsumerImpl;
-import com.jcp.commit.hub.Receiver;
-import com.jcp.commit.hub.Sender;
+import com.jcp.commit.hub.EventSender;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import static com.jcp.commit.kafka.service.KafkaConstants.EVENT_HUB_TOPIC;
 
 @Slf4j
 @Component
-public class FulfillmentOrderLineConsumer extends AbstractKafkaConsumerImpl<String, String> {
+public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<String, String> {
 
   @Autowired
-  private Sender sender;
-
-  @Autowired
-  private Receiver receiver;
+  private EventSender sender;
 
   @Override
   protected Class<String> getKeyClass() {
@@ -37,7 +34,7 @@ public class FulfillmentOrderLineConsumer extends AbstractKafkaConsumerImpl<Stri
 
   @Override
   protected String getTopicName() {
-    return "order_capture_request";
+    return EVENT_HUB_TOPIC;
   }
 
   @Override
@@ -56,16 +53,14 @@ public class FulfillmentOrderLineConsumer extends AbstractKafkaConsumerImpl<Stri
   }
 
   @Override
-  protected void processMessage(ConsumerRecord<String, String> shipmentUpdatesConsumerRecord) {
-    log.info("Receive shipment update, Recieved mesage. Key: {}", shipmentUpdatesConsumerRecord.key());
+  protected void processMessage(ConsumerRecord<String, String> record) {
 
-    log.info("Reading message : {} ", shipmentUpdatesConsumerRecord.value());
+    log.info("Receive shipment update, Recieved mesage. Key: {}, value : {} ", record.key(),
+            record.value());
+
     try {
-      List<EventData> allEvents = Arrays.asList(new EventData(shipmentUpdatesConsumerRecord.value()), new EventData(shipmentUpdatesConsumerRecord.value()));
-      System.out.println("444444444-----"+allEvents.get(0));
+      List<EventData> allEvents = Collections.singletonList(new EventData(record.value()));
       sender.publishEvents(allEvents);
-      /*Receiver rr = new Receiver();
-      rr.receiveMessage();*/
     } catch (Exception e) {
       log.error("Failed to send message to event hub: {}", e.getLocalizedMessage());
       e.printStackTrace();

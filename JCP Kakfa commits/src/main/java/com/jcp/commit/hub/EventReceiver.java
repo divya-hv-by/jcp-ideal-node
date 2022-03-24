@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 @Service
-public class Receiver {
+public class EventReceiver {
 
-/*    @Value("${event.hub.connection.string:}")
+    @Value("${event.hub.connection.string:}")
     private String connectionString;
 
     @Value("${event.hub.name:jcp-ideal-node}")
@@ -31,15 +31,9 @@ public class Receiver {
     private String storageConnectionString;
 
     @Value("${storage.container.name:jcp-blob}")
-    private String storageContainerName;*/
+    private String storageContainerName;
 
-
-    private static final String connectionString = "Endpoint=sb://jcp-commits.servicebus.windows.net/;" +
-            "SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=OsynaUi5n+oCOPO10B4XjdNg5wHKK1eIR8MQ5IZQ5dA=";
-    private static final String eventHubName = "jcp-ideal-node";
-    private static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=jcpcommitstorage;AccountKey=QBKMHurqLRkuEXVXy2gBJoTUhMbT4krnxf9OhSK4sp6dH6wLuct1/18DveCJWDacRCjPD6dV3TKB+AStQX2XeA==;EndpointSuffix=core.windows.net";
-    private static final String storageContainerName = "jcp-blob";
-    private static final Logger logger = LoggerFactory.getLogger(Receiver.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventReceiver.class);
 
     public void receiveMessage() throws IOException {
 
