@@ -92,8 +92,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>
-    <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -124,7 +123,7 @@
                     <skipStaging>true</skipStaging>
                   </configuration>
              </plugin>
-	<plugin>
+	 <plugin>
         <groupId>org.jfrog.buildinfo</groupId>
         <artifactId>artifactory-maven-plugin</artifactId>
         <version>3.2.3</version>
@@ -147,8 +146,7 @@
           </execution>
         </executions>
       </plugin>
-   </build>
-         
+   </build>      
    <profiles>
     <profile>
       <id>release-candidate</id>
