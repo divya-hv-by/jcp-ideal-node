@@ -9,7 +9,7 @@
 		<version>2.6.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.jcp</groupId>
+	<groupId>com.yantriks.jcp</groupId>
 	<artifactId>event</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>event</name>
