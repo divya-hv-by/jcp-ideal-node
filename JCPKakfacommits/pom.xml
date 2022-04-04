@@ -15,6 +15,7 @@
 	<description>JCP Event hub and commits integration</description>
 	<properties>
 		<java.version>1.8</java.version>
+		 <nexus-url>https://nexus.yantriks.in</nexus-url>
 	</properties>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
