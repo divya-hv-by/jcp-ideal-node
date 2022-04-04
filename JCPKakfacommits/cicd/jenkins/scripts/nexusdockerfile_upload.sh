@@ -7,14 +7,17 @@ JFROG_USER_PWD=ecom-ci:$jfrogpassword
 if [ "$#" -gt 1 ]
 then
         REPO=$2
-		JFROG_REPO=libs-release-local
+        JFROG_REPO=libs-release-local
 else
         REPO=release-candidate
-		JFROG_REPO=libs-snapshot-local
+        JFROG_REPO=libs-snapshot-local
 fi
 
 
-curl -v -u ${USER_PWD} --upload-file $WORKSPACE/commits-weight-based/cicd/jenkins/scripts/startup.sh ${NEXUS_URL}/${REPO}/content/com/yantriks/poc/poc-sourcing-extension/${PACKAGE_NUMBER}/startup.sh
-curl -v -u ${USER_PWD} --upload-file $WORKSPACE/commits-weight-based/cicd/jenkins/scripts/Dockerfile ${NEXUS_URL}/${REPO}/content/com/yantriks/poc/poc-sourcing-extension/${PACKAGE_NUMBER}/Dockerfile
+curl -v -u ${USER_PWD} --upload-file $WORKSPACE/JCPKakfacommits/cicd/jenkins/scripts/startup.sh ${NEXUS_URL}/${REPO}/content/com/yantriks/JCPKakfacommits/events/extensions/ideal-node/${PACKAGE_NUMBER}/startup.sh
+curl -v -u ${USER_PWD} --upload-file $WORKSPACE/JCPKakfacommits/cicd/jenkins/scripts/Dockerfile ${NEXUS_URL}/${REPO}/content/com/yantriks/JCPKakfacommits/events/extensions/ideal-node/${PACKAGE_NUMBER}/Dockerfile
+
+#curl -v -u ${USER_PWD} --upload-file $WORKSPACE/commits-weight-based/cicd/jenkins/scripts/startup.sh ${NEXUS_URL}/${REPO}/content/com/yantriks/poc/poc-sourcing-extension/${PACKAGE_NUMBER}/startup.sh
+#curl -v -u ${USER_PWD} --upload-file $WORKSPACE/commits-weight-based/cicd/jenkins/scripts/Dockerfile ${NEXUS_URL}/${REPO}/content/com/yantriks/poc/poc-sourcing-extension/${PACKAGE_NUMBER}/Dockerfile
 
 
