@@ -7,10 +7,10 @@ JFROG_USER_PWD=ecom-ci:$jfrogpassword
 if [ "$#" -gt 1 ]
 then
         REPO=$2
-        JFROG_REPO=libs-release-local
+		JFROG_REPO=libs-release-local
 else
         REPO=release-candidate
-        JFROG_REPO=libs-snapshot-local
+		JFROG_REPO=libs-snapshot-local
 fi
 
 
