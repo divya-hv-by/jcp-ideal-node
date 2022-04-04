@@ -3,7 +3,6 @@ PACKAGE_NUMBER=$1
 USER_PWD=dev-readonly:$password
 NEXUS_URL=https://nexus.yantriks.in/nexus/service/local/repositories
 if [ "$#" -gt 1 ]
-then
         REPO=$2
 else
         REPO=release-candidate
