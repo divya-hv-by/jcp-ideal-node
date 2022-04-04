@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -9,16 +8,15 @@
 		<version>2.6.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.yantriks.jcp</groupId>
+	<groupId>com.jcp</groupId>
 	<artifactId>event</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>event</name>
 	<description>JCP Event hub and commits integration</description>
-	
 	<properties>
 		<java.version>1.8</java.version>
+		 <nexus-url>https://nexus.yantriks.in</nexus-url>
 	</properties>
-	
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
 		<dependency>
@@ -80,9 +78,9 @@
 		</dependency>
 	</dependencies>
 
-<build>
-   <plugins>
-		  <plugin>
+	<build>
+		<plugins>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
@@ -93,8 +91,8 @@
 						</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-            <plugin>
+		  </plugin>
+               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -125,20 +123,20 @@
                     <skipStaging>true</skipStaging>
                   </configuration>
              </plugin>
-	         <plugin>
-                 <groupId>org.jfrog.buildinfo</groupId>
-                 <artifactId>artifactory-maven-plugin</artifactId>
-                 <version>3.2.3</version>
-                 <inherited>false</inherited>
-                   <executions>
-                    <execution>
-                     <id>build-info</id>
-                      <goals>
-                       <goal>publish</goal>
-                      </goals>
-                     <configuration>
-                     <publisher>
-                    <contextUrl>https://jdasoftware.jfrog.io/jdasoftware</contextUrl>
+	<plugin>
+        <groupId>org.jfrog.buildinfo</groupId>
+        <artifactId>artifactory-maven-plugin</artifactId>
+        <version>3.2.3</version>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>build-info</id>
+            <goals>
+              <goal>publish</goal>
+            </goals>
+            <configuration>
+              <publisher>
+                <contextUrl>https://jdasoftware.jfrog.io/jdasoftware</contextUrl>
                 <username>commerce-ci</username>
                 <password>AKCp8jRbN2x9qshR8kFQtj9r1BMb6tXugoumsUzjWMWM7uVBExjfbanDV8Y1VcUaxv5kiAz7g</password>
                 <repoKey>libs-release-local</repoKey>
@@ -148,8 +146,9 @@
           </execution>
         </executions>
       </plugin>
- </plugins>
- </build>      
+     </plugins>
+  </build>
+         
    <profiles>
     <profile>
       <id>release-candidate</id>
