@@ -14,7 +14,7 @@ else
 fi
 
 
-curl -v -u ${USER_PWD} --upload-file $WORKSPACE/commits-weight-based/cicd/jenkins/scripts/startup.sh ${NEXUS_URL}/${REPO}/content/com/yantriks/poc/poc-sourcing-extension/${PACKAGE_NUMBER}/startup.sh
-curl -v -u ${USER_PWD} --upload-file $WORKSPACE/commits-weight-based/cicd/jenkins/scripts/Dockerfile ${NEXUS_URL}/${REPO}/content/com/yantriks/poc/poc-sourcing-extension/${PACKAGE_NUMBER}/Dockerfile
+curl -v -u ${USER_PWD} --upload-file $WORKSPACE/JCPKakfacommits/cicd/jenkins/scripts/startup.sh ${NEXUS_URL}/${REPO}/content/com/yantriks/JCPKakfacommits/jcp-ideal/${PACKAGE_NUMBER}/startup.sh
+curl -v -u ${USER_PWD} --upload-file $WORKSPACE/JCPKakfacommits/cicd/jenkins/scripts/Dockerfile ${NEXUS_URL}/${REPO}/content/com/yantriks/JCPKakfacommits/jcp-ideal/${PACKAGE_NUMBER}/Dockerfile
 
 
