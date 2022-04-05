@@ -9,7 +9,7 @@ RUN mkdir -p /opt/api/work
 # create the dir where we will mount out config map
 RUN mkdir /configmap
 RUN mkdir /app
-COPY ./commits-exts.jar /opt/api/commits-exts.jar
+COPY ./event.jar /opt/api/event.jar
 
 COPY ./startup.sh /usr/bin/startup.sh
 RUN chmod +x /usr/bin/startup.sh
