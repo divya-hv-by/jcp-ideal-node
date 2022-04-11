@@ -15,6 +15,7 @@
     <description>JCP Event hub and commits integration</description>
     <properties>
         <java.version>1.8</java.version>
+        <nexus-url>https://nexus.yantriks.in</nexus-url>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
@@ -40,19 +41,6 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>2.0.0.Final</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.1</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
@@ -90,9 +78,63 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.0.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>2.2.6.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-cassandra</artifactId>
         </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     </dependencies>
 
@@ -110,7 +152,149 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                    <encoding>UTF-8</encoding>
+                    <executable>/usr/bin/java/bin/javac</executable>
+
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <serverId>nexus</serverId>
+                    <nexusUrl>https://nexus.yantriks.in/nexus/</nexusUrl>
+                    <skipStaging>true</skipStaging>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jfrog.buildinfo</groupId>
+                <artifactId>artifactory-maven-plugin</artifactId>
+                <version>3.2.3</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <configuration>
+                            <publisher>
+                                <contextUrl>https://jdasoftware.jfrog.io/jdasoftware</contextUrl>
+                                <username>commerce-ci</username>
+                                <password>AKCp8jRbN2x9qshR8kFQtj9r1BMb6tXugoumsUzjWMWM7uVBExjfbanDV8Y1VcUaxv5kiAz7g</password>
+                                <repoKey>libs-release-local</repoKey>
+                                <snapshotRepoKey>libs-snapshot-local</snapshotRepoKey>
+                            </publisher>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release-candidate</id>
+            <distributionManagement>
+                <repository>
+                    <id>release-candidate</id>
+                    <name>RepositoryProxyRel</name>
+                    <url>${nexus-url}/nexus/content/repositories/release-candidate/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>nexus-snapshots</id>
+                    <url>${nexus-url}/nexus/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>release</id>
+            <distributionManagement>
+                <repository>
+                    <id>release-candidate</id>
+                    <name>RepositoryProxyRel</name>
+                    <url>${nexus-url}/nexus/content/repositories/releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>nexus-snapshots</id>
+                    <url>${nexus-url}/nexus/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>jfrog</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <repository>
+                    <id>by-central</id>
+                    <name>libs-release-local</name>
+                    <url>https://jdasoftware.jfrog.io/jdasoftware/libs-release-local</url>
+                </repository>
+                <snapshotRepository>
+                    <id>by-central</id>
+                    <name>libs-snapshot-local</name>
+                    <url>https://jdasoftware.jfrog.io/jdasoftware/libs-snapshot-local</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>by-central</id>
+                    <name>jda-dev-repositories</name>
+                    <url>https://jdasoftware.jfrog.io/jdasoftware/jda-dev-repositories</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+        <profile>
+            <id>jfrog-release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <repository>
+                    <id>by-central</id>
+                    <name>libs-release-local</name>
+                    <url>https://jdasoftware.jfrog.io/jdasoftware/libs-release-local</url>
+                </repository>
+            </distributionManagement>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>by-central</id>
+                    <name>jda-dev-repositories</name>
+                    <url>https://jdasoftware.jfrog.io/jdasoftware/jda-dev-repositories</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
 
 </project>
