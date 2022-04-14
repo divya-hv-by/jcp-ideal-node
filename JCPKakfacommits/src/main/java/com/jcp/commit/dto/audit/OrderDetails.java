@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -30,7 +31,7 @@ public class OrderDetails implements Serializable {
     private String optimizationRuleId;
     private boolean reservationOrder;
     private boolean redecideOrder;
-    private LocalDateTime orderCreationTime;
+    private ZonedDateTime orderCreationTime;
     private boolean ignoreAvailability;
     private boolean idealNodeOrder;
 

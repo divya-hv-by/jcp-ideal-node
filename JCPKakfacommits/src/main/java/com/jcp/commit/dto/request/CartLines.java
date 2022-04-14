@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,7 +33,7 @@ public class CartLines implements Serializable {
     private String cartLineType;
     private Double linePriceTotal;
     private Double sellingPrice;
-    private LocalDateTime requestedDeliveryDate;
+    private ZonedDateTime requestedDeliveryDate;
     private String requestedDeliveryDateConstraint;
     private boolean considerGlobalInventory;
     private SourcingLocations sourcingLocations;

@@ -74,5 +74,22 @@ public class Properties {
   @Value("${delivery.classification}")
   private String deliveryClassification;
 
+  @Value("${uom}")
+  private String uom;
+
+  @Value("${country.code}")
+  private String countryCOde;
+
+  @Value("${keep.together.id}")
+  private String keepTogetherId;
+
+  @Value("${locationId.id}")
+  private String locationId;
+
+  @Value("${location.type}")
+  private String locationType;
+
+  @Value("${cart.line.type}")
+  private String cartLineType;
 
 }

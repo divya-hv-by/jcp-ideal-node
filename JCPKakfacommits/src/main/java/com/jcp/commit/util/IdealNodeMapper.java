@@ -10,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.jcp.commit.util.IdealNodeConstants.UOM;
 
 @Component
 @Slf4j
@@ -61,21 +60,21 @@ public class IdealNodeMapper {
 
             CartLines cartLines = CartLines.builder().lineId(lines.getKey().getLineNumber())
                     .productId(lines.getItemId())
-                    .uom("EACH")
+                    .uom(properties.getUom())
                     .quantity(Integer.parseInt(lines.getQuantity()))
                     .fulfillmentService(lines.getServiceCode())
                     .fulfillmentType(lines.getFulfillmentType())
                     .shippingAddress(Address.builder()
                             .city(lines.getCity())
-                            .countryCode("USA")
+                            .countryCode(properties.getCountryCOde())
                             .zipCode(lines.getZipCode())
                             .state(lines.getStateCode()).build())
-                    .keepTogetherId("")
+                    .keepTogetherId(properties.getKeepTogetherId())
                     .sourcingConstraint(properties.getSourcingConstraint())
-                    .locationId("")
-                    .locationType("")
+                    .locationId(properties.getLocationId())
+                    .locationType(properties.getLocationType())
                     .considerTransfer(false)
-                    .cartLineType("B2B")
+                    .cartLineType(properties.getCartLineType())
                     .linePriceTotal(Double.valueOf(lines.getPrice().substring(1, lines.getPrice().length() - 1)))
                     .sellingPrice(Double.valueOf(lines.getPrice().substring(1, lines.getPrice().length() - 1)))
                     //.requestedDeliveryDate()
@@ -115,7 +114,8 @@ public class IdealNodeMapper {
 
             OrderLines line = OrderLines.builder()
                     .lineId(orderLines.getLineId())
-                    .itemId(ItemId.builder().itemId(orderLines.getProductId()).uom(UOM).build())
+                    .itemId(ItemId.builder().itemId(orderLines.getProductId())
+                            .uom(idealNodeRequestDto.getCartLines().get(0).getUom()).build())
                     .quantity(orderLines.getQuantity())
                     .keepTogetherId(orderLines.getKeepTogetherId())
                     .sourcingConstraint(orderLines.getSourcingConstraint())
@@ -150,7 +150,7 @@ public class IdealNodeMapper {
                 .optimizationRuleId(properties.getOptimizationRuleId())
                 .reservationOrder(properties.isReservationOrder())
                 .redecideOrder(properties.isRedecideOrder())
-                .orderCreationTime(idealNodeOrderLineList.get(0).getOrderDate())
+                .orderCreationTime(idealNodeOrderLineList.get(0).getOrderDate().atZone(ZoneId.of( "UTC")))
                 .ignoreAvailability(Boolean.getBoolean(properties.getIgnoreAvailability()))
                 .idealNodeOrder(Boolean.getBoolean(properties.getIdealNodeOnly()))
                 .build();

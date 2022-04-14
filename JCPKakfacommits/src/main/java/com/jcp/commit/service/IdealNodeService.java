@@ -17,6 +17,6 @@ public interface IdealNodeService {
 
   void processHistoricData(LocalDateTime startTime, LocalDateTime endTime);
 
-  CommitsResponseDto getIdealNode(IdealNodeRequestDto idealNodeRequestDto, List<IdealNodeEntity> idealNodeOrderLineList);
+  IdealNodeResponseDto getIdealNode(IdealNodeRequestDto idealNodeRequestDto);
 
 }

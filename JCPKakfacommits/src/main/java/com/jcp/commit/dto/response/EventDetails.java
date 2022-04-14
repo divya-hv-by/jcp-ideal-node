@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,7 +18,7 @@ public class EventDetails implements Serializable {
 
     private String name;
     private String description;
-    private LocalDateTime deliveryDate;
+    private ZonedDateTime deliveryDate;
     private boolean upgradeService;
 
 }

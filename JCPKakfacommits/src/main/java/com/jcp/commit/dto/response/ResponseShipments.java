@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class ResponseShipments implements Serializable {
     private ShipDate deliveryDate;
     private ShipDate orderCutOffDate;
     private ShipDate releaseDate;
-    private LocalDateTime reservationDate;
+    private ZonedDateTime reservationDate;
     private ShipDate capacityDate;
     private List<Transfers> transfers;
     private int shipmentId;

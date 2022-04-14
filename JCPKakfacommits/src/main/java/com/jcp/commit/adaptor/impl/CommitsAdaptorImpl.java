@@ -62,6 +62,7 @@ public class CommitsAdaptorImpl implements CommitsAdaptor {
       log.error("Error in getting ideal response details for order number : {} Reason : {} ",
           idealNodeRequestDto.getCartId(), e.getMessage());
     }
+    assert idealNodeResponseDto != null;
     return idealNodeResponseDto.getBody();
   }
 
@@ -70,6 +71,8 @@ public class CommitsAdaptorImpl implements CommitsAdaptor {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.add("X-Correlation-ID", headerValue);
     httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+    httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
     return httpHeaders;
   }
 

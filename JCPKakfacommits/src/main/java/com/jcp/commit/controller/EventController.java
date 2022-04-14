@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 @Slf4j
 @RestController
@@ -97,18 +98,18 @@ public class EventController {
 
     }
 
-    @PostMapping("/hub/create-ideal-node")
-    public ResponseEntity<CommitsResponseDto> getIdealNode(@Valid @RequestBody IdealNodeRequestDto idealNodeRequestDto) {
+    @PostMapping("/hub/ideal-node")
+    public ResponseEntity<IdealNodeResponseDto> getIdealNode(@Valid @RequestBody IdealNodeRequestDto idealNodeRequestDto) {
 
         final long start = System.currentTimeMillis();
 
-        //CommitsResponseDto idealNode = idealNodeService.getIdealNode(idealNodeRequestDto);
+        IdealNodeResponseDto idealNode = idealNodeService.getIdealNode(idealNodeRequestDto);
 
         log.info("Ideal node : Time taken : {} ms", System.currentTimeMillis() - start);
 
         return ResponseEntity
                 .ok()
-                .body(null);
+                .body(idealNode);
 
     }
 }

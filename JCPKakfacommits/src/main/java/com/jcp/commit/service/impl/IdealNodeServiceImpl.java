@@ -2,18 +2,17 @@ package com.jcp.commit.service.impl;
 
 import com.jcp.commit.adaptor.CommitsAdaptor;
 import com.jcp.commit.config.Properties;
-import com.jcp.commit.dto.audit.*;
-import com.jcp.commit.dto.request.*;
+import com.jcp.commit.dto.audit.CommitsResponseDto;
+import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
+import com.jcp.commit.dto.request.CartLines;
+import com.jcp.commit.dto.request.IdealNodeRequestDto;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
 import com.jcp.commit.entity.IdealNodeEntity;
-import com.jcp.commit.entity.IdealNodeEntityPK;
 import com.jcp.commit.kafka.service.KafkaEventProducer;
 import com.jcp.commit.repository.IdealNodeRepository;
 import com.jcp.commit.service.IdealNodeService;
 import com.jcp.commit.util.ApiToAuditResponseMapper;
-import com.jcp.commit.util.IdealNodeConstants;
 import com.jcp.commit.util.IdealNodeMapper;
-import jnr.ffi.annotations.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -21,11 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jcp.commit.util.IdealNodeConstants.UOM;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
@@ -138,13 +135,13 @@ public class IdealNodeServiceImpl implements IdealNodeService {
                 List<IdealNodeEntity> idealNodeOrderLineList = idealNodeGroupedByOrderNumberList.get(orderNo);
                 IdealNodeRequestDto idealNodeRequestDto = idealNodeMapper.getIdealNodeRequest(idealNodeOrderLineList, orderNo);
 
-                CommitsResponseDto commitsResponseDto = getIdealNode(idealNodeRequestDto, idealNodeOrderLineList);
+                CommitsResponseDto commitsResponseDto = getIdealNodeForOrderAndSendToTopic(idealNodeRequestDto, idealNodeOrderLineList);
 
             });
         });
     }
 
-    public CommitsResponseDto getIdealNode(IdealNodeRequestDto idealNodeRequestDto, List<IdealNodeEntity> idealNodeOrderLineList) {
+    private CommitsResponseDto getIdealNodeForOrderAndSendToTopic(IdealNodeRequestDto idealNodeRequestDto, List<IdealNodeEntity> idealNodeOrderLineList) {
 
         IdealNodeResponseDto idealNodeResponseDto = commitsAdaptor.getIdealNode(idealNodeRequestDto);
         CommitsResponseDto commitsResponseDto = apiToAuditResponseMapper.getIdealNodeEntity(idealNodeResponseDto);
@@ -153,11 +150,17 @@ public class IdealNodeServiceImpl implements IdealNodeService {
                 idealNodeMapper.addOrderDetailsToCommitsResponse(idealNodeRequestDto, idealNodeOrderLineList, commitsResponseDto);
 
         kafkaEventProducer.send(CommitsResponseKeyDto.builder().orderId(idealNodeResponseDto.getCartId())
-                .fulfillmentService(idealNodeResponseDto.getShipments().get(0).getFulfillmentService())
-                .fulfillmentType(idealNodeResponseDto.getShipments().get(0).getFulfillmentType())
+                        .fulfillmentService(idealNodeResponseDto.getShipments().get(0).getFulfillmentService())
+                        .fulfillmentType(idealNodeResponseDto.getShipments().get(0).getFulfillmentType())
                         .lines(idealNodeRequestDto.getCartLines().stream().map(CartLines::getLineId).collect(Collectors.toList())).build(),
                 commitsResponseDtoAfterMappingOrderDetail);
         return commitsResponseDtoAfterMappingOrderDetail;
+
+    }
+
+    public IdealNodeResponseDto getIdealNode(IdealNodeRequestDto idealNodeRequestDto) {
+
+        return commitsAdaptor.getIdealNode(idealNodeRequestDto);
 
     }
 

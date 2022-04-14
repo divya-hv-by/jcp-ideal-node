@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,8 +18,8 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ShipDate implements Serializable {
 
-    private LocalDateTime min;
-    private LocalDateTime max;
+    private ZonedDateTime min;
+    private ZonedDateTime max;
 
 
 }
