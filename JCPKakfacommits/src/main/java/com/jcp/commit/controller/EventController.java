@@ -91,7 +91,7 @@ public class EventController {
         LocalDateTime startTime = LocalDateTime.parse("2022-01-30 00:00:00", formatter);
         LocalDateTime endTime = LocalDateTime.parse("2022-01-30 23:59:59", formatter);
 
-        idealNodeService.processHistoricData(startTime, endTime);;
+        idealNodeService.processHistoricData(startTime, endTime);
         return ResponseEntity
                 .ok()
                 .body("Success");

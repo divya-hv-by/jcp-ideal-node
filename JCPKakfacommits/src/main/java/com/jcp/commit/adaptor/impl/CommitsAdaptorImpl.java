@@ -69,10 +69,9 @@ public class CommitsAdaptorImpl implements CommitsAdaptor {
 
   public static HttpHeaders getHeaders(String headerValue) {
     HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.add("X-Correlation-ID", headerValue);
     httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
+    httpHeaders.set("Authorization", String.format("Bearer %s", headerValue));
     return httpHeaders;
   }
 
