@@ -71,7 +71,7 @@ public class CommitsAdaptorImpl implements CommitsAdaptor {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-    httpHeaders.set("Authorization", String.format("Bearer %s", headerValue));
+    httpHeaders.setBearerAuth(headerValue);
     return httpHeaders;
   }
 
