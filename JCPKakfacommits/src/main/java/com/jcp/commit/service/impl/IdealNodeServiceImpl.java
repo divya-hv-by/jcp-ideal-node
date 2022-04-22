@@ -7,7 +7,7 @@ import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
 import com.jcp.commit.dto.request.CartLines;
 import com.jcp.commit.dto.request.IdealNodeRequestDto;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
-import com.jcp.commit.entity.IdealNodeEntity;
+import com.jcp.commit.entity.HistoricDataIdealNodeEntity;
 import com.jcp.commit.kafka.service.KafkaEventProducer;
 import com.jcp.commit.repository.IdealNodeRepository;
 import com.jcp.commit.service.IdealNodeService;
@@ -52,11 +52,11 @@ public class IdealNodeServiceImpl implements IdealNodeService {
 
         try {
             List<List<String>> parsedFileData = readRecords(filePath);
-            List<IdealNodeEntity> idealNodeEntityList = new ArrayList<>();
+            List<HistoricDataIdealNodeEntity> idealNodeEntityList = new ArrayList<>();
             parsedFileData.forEach(data -> {
                 try {
-                    IdealNodeEntity idealNodeEntity = idealNodeMapper.getIdealNodeEntity(data);
-                    idealNodeEntityList.add(idealNodeEntity);
+                    HistoricDataIdealNodeEntity historicDataIdealNodeEntity = idealNodeMapper.getIdealNodeEntity(data);
+                    idealNodeEntityList.add(historicDataIdealNodeEntity);
                 } catch (Exception exception) {
                     log.error("Exception while parsing lines of file : {} ", exception.getLocalizedMessage());
                 }
@@ -89,13 +89,13 @@ public class IdealNodeServiceImpl implements IdealNodeService {
 
     public void processHistoricData(LocalDateTime startTime, LocalDateTime endTime) {
 
-        List<IdealNodeEntity> idealNodeEntityList = idealNodeRepository.findByOrderDateBetween(startTime, endTime);
+        List<HistoricDataIdealNodeEntity> idealNodeEntityList = idealNodeRepository.findByOrderDateBetween(startTime, endTime);
 
-        Map<String, List<IdealNodeEntity>> idealNodeGroupedByOrderNumberList =
+        Map<String, List<HistoricDataIdealNodeEntity>> idealNodeGroupedByOrderNumberList =
                 idealNodeEntityList.stream().collect(groupingBy(idealNode -> idealNode.getKey().getOrderNumber()));
 
-        Map<String, List<IdealNodeEntity>> idealNodeGroupedByItem =
-                idealNodeEntityList.stream().collect(groupingBy(IdealNodeEntity::getItemId));
+        Map<String, List<HistoricDataIdealNodeEntity>> idealNodeGroupedByItem =
+                idealNodeEntityList.stream().collect(groupingBy(HistoricDataIdealNodeEntity::getItemId));
         Map<String, Integer> itemQtyMap = new HashMap<>();
 
         idealNodeGroupedByItem.forEach((item, itemIdealNode) -> {
@@ -112,8 +112,8 @@ public class IdealNodeServiceImpl implements IdealNodeService {
         sortItemByCount.keySet().forEach(item -> {
 
             Map<String, Integer> orderNumberLineMap = new HashMap<>();
-            List<IdealNodeEntity> idealNodeEntitiesForItem = idealNodeGroupedByItem.get(item);
-            Map<String, List<IdealNodeEntity>> idealNodeGroupedByOrderNo = idealNodeEntitiesForItem.stream()
+            List<HistoricDataIdealNodeEntity> idealNodeEntitiesForItem = idealNodeGroupedByItem.get(item);
+            Map<String, List<HistoricDataIdealNodeEntity>> idealNodeGroupedByOrderNo = idealNodeEntitiesForItem.stream()
                     .collect(groupingBy(line -> line.getKey().getOrderNumber()));
 
             idealNodeGroupedByOrderNo.forEach((orderNumber, idealNodeEntityByOrderNumber) -> {
@@ -132,7 +132,7 @@ public class IdealNodeServiceImpl implements IdealNodeService {
         sortItemByCount.forEach((item, soldQty) -> {
             idealNodeItemOrderEntityMap.get(item).forEach((orderNo, maxOrderLineCount) -> {
 
-                List<IdealNodeEntity> idealNodeOrderLineList = idealNodeGroupedByOrderNumberList.get(orderNo);
+                List<HistoricDataIdealNodeEntity> idealNodeOrderLineList = idealNodeGroupedByOrderNumberList.get(orderNo);
                 IdealNodeRequestDto idealNodeRequestDto = idealNodeMapper.getIdealNodeRequest(idealNodeOrderLineList, orderNo);
 
                 CommitsResponseDto commitsResponseDto = getIdealNodeForOrderAndSendToTopic(idealNodeRequestDto, idealNodeOrderLineList);
@@ -141,7 +141,7 @@ public class IdealNodeServiceImpl implements IdealNodeService {
         });
     }
 
-    private CommitsResponseDto getIdealNodeForOrderAndSendToTopic(IdealNodeRequestDto idealNodeRequestDto, List<IdealNodeEntity> idealNodeOrderLineList) {
+    private CommitsResponseDto getIdealNodeForOrderAndSendToTopic(IdealNodeRequestDto idealNodeRequestDto, List<HistoricDataIdealNodeEntity> idealNodeOrderLineList) {
 
         IdealNodeResponseDto idealNodeResponseDto = commitsAdaptor.getIdealNode(idealNodeRequestDto);
         CommitsResponseDto commitsResponseDto = apiToAuditResponseMapper.getIdealNodeEntity(idealNodeResponseDto);

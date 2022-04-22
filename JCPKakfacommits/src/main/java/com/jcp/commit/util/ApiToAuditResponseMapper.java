@@ -3,15 +3,10 @@ package com.jcp.commit.util;
 import com.jcp.commit.dto.audit.*;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
 import com.jcp.commit.dto.response.ResponseShipments;
-import com.jcp.commit.entity.IdealNodeEntity;
-import com.jcp.commit.entity.IdealNodeEntityPK;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j

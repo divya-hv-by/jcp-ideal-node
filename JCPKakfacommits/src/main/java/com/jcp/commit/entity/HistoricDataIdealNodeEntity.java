@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(IdealNodeEntity.TABLE_NAME)
-public class IdealNodeEntity implements Serializable {
+@Table(HistoricDataIdealNodeEntity.TABLE_NAME)
+public class HistoricDataIdealNodeEntity implements Serializable {
 
-    public static final String TABLE_NAME = "ideal_node";
+    public static final String TABLE_NAME = "historic_data_ideal_node";
 
     @PrimaryKey
     private IdealNodeEntityPK key;

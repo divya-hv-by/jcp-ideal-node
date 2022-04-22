@@ -3,7 +3,7 @@ package com.jcp.commit.util;
 import com.jcp.commit.config.Properties;
 import com.jcp.commit.dto.audit.*;
 import com.jcp.commit.dto.request.*;
-import com.jcp.commit.entity.IdealNodeEntity;
+import com.jcp.commit.entity.HistoricDataIdealNodeEntity;
 import com.jcp.commit.entity.IdealNodeEntityPK;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,27 +24,30 @@ public class IdealNodeMapper {
     @Autowired
     private Properties properties;
 
-    public IdealNodeEntity getIdealNodeEntity(List<String> data) {
+    public HistoricDataIdealNodeEntity getIdealNodeEntity(List<String> data) {
         List<String> lineRecord = Arrays.stream(data.get(0).split(",")).collect(Collectors.toList());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        List<String> emptyString = new ArrayList<>();
+        emptyString.add("");
+        emptyString.add(null);
         LocalDateTime dateTime = LocalDateTime.parse(lineRecord.get(3).substring(1, lineRecord.get(3).length() - 4), formatter);
 
-        return IdealNodeEntity.builder()
+        return HistoricDataIdealNodeEntity.builder()
                 .key(IdealNodeEntityPK.builder().orderNumber(lineRecord.get(2).substring(1, lineRecord.get(2).length() - 1))
                         .lineNumber(lineRecord.get(5).substring(1, lineRecord.get(5).length() - 1)).build())
                 .itemId(lineRecord.get(0).substring(1, lineRecord.get(0).length() - 1))
                 .itemDescription(lineRecord.get(7))
                 .quantity(lineRecord.get(6).substring(1, lineRecord.get(6).length() - 1))
                 .orderDate(dateTime)
-                .zipCode(lineRecord.get(17))
-                .serviceCode(lineRecord.get(4))
-                .price(lineRecord.get(8))
-                .clearance(lineRecord.get(13))
-                .stateCode(lineRecord.get(16))
-                .addressClassification(lineRecord.get(18))
-                .fulfillmentType(lineRecord.get(10))
-                .city(lineRecord.get(15))
-                .warehouseClass(lineRecord.get(9))
+                .zipCode(emptyString.contains(lineRecord.get(17)) ? null : lineRecord.get(17).substring(1, lineRecord.get(17).length() - 1))
+                .serviceCode(emptyString.contains(lineRecord.get(4)) ? null : lineRecord.get(4).substring(1, lineRecord.get(4).length() - 1))
+                .price(emptyString.contains(lineRecord.get(8)) ? null : lineRecord.get(8).substring(1, lineRecord.get(8).length() - 1))
+                .clearance(emptyString.contains(lineRecord.get(13)) ? null : lineRecord.get(13).substring(1, lineRecord.get(13).length() - 1))
+                .stateCode(emptyString.contains(lineRecord.get(16)) ? null : lineRecord.get(16).substring(1, lineRecord.get(16).length() - 1))
+                .addressClassification(emptyString.contains(lineRecord.get(18)) ? null : lineRecord.get(18).substring(1, lineRecord.get(18).length() - 1))
+                .fulfillmentType(emptyString.contains(lineRecord.get(10)) ? null : lineRecord.get(10).substring(1, lineRecord.get(10).length() - 1))
+                .city(emptyString.contains(lineRecord.get(15)) ? null : lineRecord.get(15).substring(1, lineRecord.get(15).length() - 1))
+                .warehouseClass(emptyString.contains(lineRecord.get(9)) ? null : lineRecord.get(9).substring(1, lineRecord.get(9).length() - 1))
                 .createdDateTime(LocalDateTime.now())
                 .createdUserId(IdealNodeConstants.CREATED_USER)
                 .modifiedUserId(IdealNodeConstants.UPDATED_USER)
@@ -52,7 +55,7 @@ public class IdealNodeMapper {
                 .build();
     }
 
-    public IdealNodeRequestDto getIdealNodeRequest(List<IdealNodeEntity> idealNodeOrderLineList, String orderNo) {
+    public IdealNodeRequestDto getIdealNodeRequest(List<HistoricDataIdealNodeEntity> idealNodeOrderLineList, String orderNo) {
 
         List<CartLines> cartLinesList = new ArrayList<>();
 
@@ -107,7 +110,7 @@ public class IdealNodeMapper {
     }
 
     public CommitsResponseDto addOrderDetailsToCommitsResponse(IdealNodeRequestDto idealNodeRequestDto,
-                                                               List<IdealNodeEntity> idealNodeOrderLineList,
+                                                               List<HistoricDataIdealNodeEntity> idealNodeOrderLineList,
                                                                CommitsResponseDto commitsResponseDto) {
         List<OrderLines> orderLinesList = new ArrayList<>();
         idealNodeRequestDto.getCartLines().forEach(orderLines -> {

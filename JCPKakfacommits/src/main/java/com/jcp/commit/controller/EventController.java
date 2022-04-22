@@ -3,6 +3,7 @@ package com.jcp.commit.controller;
 import com.jcp.commit.dto.audit.CommitsResponseDto;
 import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
 import com.jcp.commit.dto.request.IdealNodeRequestDto;
+import com.jcp.commit.dto.request.StartEndDateRequestDto;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
 import com.jcp.commit.hub.EventReceiver;
 import com.jcp.commit.kafka.service.KafkaEventProducer;
@@ -16,7 +17,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 
 @Slf4j
 @RestController
@@ -72,7 +72,6 @@ public class EventController {
        idealNodeService.readHistoricData("/Users/deepakyadav/Desktop/ram.csv");
 
         log.info("Read file: Time taken : {} ms", System.currentTimeMillis() - start);
-        //idealNodeService.processBatchFile(Collections.emptyList());
 
         return ResponseEntity
                 .ok()
@@ -80,16 +79,17 @@ public class EventController {
 
     }
 
-    @GetMapping("/hub/process-historic-data")
-    public ResponseEntity<String> procesHistoricData() throws IOException {
+    @PostMapping("/hub/process-historic-data")
+    public ResponseEntity<String> processHistoricData(@Valid @RequestBody StartEndDateRequestDto startEndDateRequestDto)
+            throws IOException {
 
         final long start = System.currentTimeMillis();
 
         log.info("Read file: Time taken : {} ms", System.currentTimeMillis() - start);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startTime = LocalDateTime.parse("2022-01-30 00:00:00", formatter);
-        LocalDateTime endTime = LocalDateTime.parse("2022-01-30 23:59:59", formatter);
+        LocalDateTime startTime = LocalDateTime.parse(startEndDateRequestDto.getStartTime(), formatter);
+        LocalDateTime endTime = LocalDateTime.parse(startEndDateRequestDto.getEndTime(), formatter);
 
         idealNodeService.processHistoricData(startTime, endTime);
         return ResponseEntity
