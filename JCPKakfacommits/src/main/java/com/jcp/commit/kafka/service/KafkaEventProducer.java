@@ -1,7 +1,9 @@
 package com.jcp.commit.kafka.service;
 
 
-import com.jcp.commit.event.AbstractKafkaProducerImpl;
+import com.jcp.commit.dto.audit.CommitsResponseDto;
+import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
+import com.jcp.commit.kafka.AbstractKafkaProducerImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.kafka.support.SendResult;
@@ -11,7 +13,7 @@ import static com.jcp.commit.kafka.service.KafkaConstants.EVENT_HUB_TOPIC;
 
 @Slf4j
 @Component
-public class KafkaEventProducer extends AbstractKafkaProducerImpl<String, String> {
+public class KafkaEventProducer extends AbstractKafkaProducerImpl<CommitsResponseKeyDto, CommitsResponseDto> {
 
   @Override
   protected Logger getLogger() {
@@ -24,7 +26,7 @@ public class KafkaEventProducer extends AbstractKafkaProducerImpl<String, String
   }
 
   @Override
-  protected void logResponse(SendResult<String, String> result) {
+  protected void logResponse(SendResult<CommitsResponseKeyDto, CommitsResponseDto> result) {
     try {
       log.info("Published to topic : {} ", result.getProducerRecord().topic());
     } catch (Exception e) {

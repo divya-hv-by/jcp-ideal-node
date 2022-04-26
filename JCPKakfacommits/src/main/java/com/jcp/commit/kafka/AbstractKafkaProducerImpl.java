@@ -1,4 +1,4 @@
-package com.jcp.commit.event;
+package com.jcp.commit.kafka;
 
 
 import com.jcp.commit.config.KafkaProducerConfiguration;

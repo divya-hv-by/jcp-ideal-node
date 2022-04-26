@@ -35,7 +35,7 @@ public class EventSender {
 
         for (EventData eventData : allEvents) {
             // try to add the event from the array to the batch
-            if (!eventDataBatch.tryAdd(eventData)) {
+            if (eventDataBatch.tryAdd(eventData)) {
                 // if the batch is full, send it and then create a new batch
                 log.info("Sending message to event hub : {} ", eventDataBatch);
                 producer.send(eventDataBatch);
@@ -46,6 +46,8 @@ public class EventSender {
                     throw new IllegalArgumentException("Event is too large for an empty batch. Max size: "
                             + eventDataBatch.getMaxSizeInBytes());
                 }
+            } else {
+                log.error("Failed to send message to event hub : {} ", eventDataBatch);
             }
         }
         // send the last batch of remaining events

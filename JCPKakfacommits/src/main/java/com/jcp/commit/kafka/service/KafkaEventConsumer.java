@@ -2,7 +2,9 @@ package com.jcp.commit.kafka.service;
 
 
 import com.azure.messaging.eventhubs.EventData;
-import com.jcp.commit.event.AbstractKafkaConsumerImpl;
+import com.jcp.commit.dto.audit.CommitsResponseDto;
+import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
+import com.jcp.commit.kafka.AbstractKafkaConsumerImpl;
 import com.jcp.commit.hub.EventSender;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -17,14 +19,14 @@ import static com.jcp.commit.kafka.service.KafkaConstants.EVENT_HUB_TOPIC;
 
 @Slf4j
 @Component
-public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<String, String> {
+public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<CommitsResponseKeyDto, CommitsResponseDto> {
 
   @Autowired
   private EventSender sender;
 
   @Override
-  protected Class<String> getKeyClass() {
-    return String.class;
+  protected Class<CommitsResponseKeyDto> getKeyClass() {
+    return CommitsResponseKeyDto.class;
   }
 
   @Override
@@ -38,7 +40,7 @@ public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<String, String
   }
 
   @Override
-  public void logResponse(ConsumerRecord<String, String > shipmentUpdatesConsumerRecord, boolean isAutoCommit) {
+  public void logResponse(ConsumerRecord<CommitsResponseKeyDto, CommitsResponseDto> shipmentUpdatesConsumerRecord, boolean isAutoCommit) {
     try {
       log.info("Consumed message from Topic: {}, {}", shipmentUpdatesConsumerRecord.topic(), shipmentUpdatesConsumerRecord.value());
     } catch (Exception e) {
@@ -48,18 +50,18 @@ public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<String, String
 
 
   @Override
-  protected Class<String> getValueClass() {
-    return String.class;
+  protected Class<CommitsResponseDto> getValueClass() {
+    return CommitsResponseDto.class;
   }
 
   @Override
-  protected void processMessage(ConsumerRecord<String, String> record) {
+  protected void processMessage(ConsumerRecord<CommitsResponseKeyDto, CommitsResponseDto> record) {
 
-    log.info("Receive shipment update, Recieved mesage. Key: {}, value : {} ", record.key(),
+    log.info("Receive shipment update, Received mesage. Key: {}, value : {} ", record.key(),
             record.value());
 
     try {
-      List<EventData> allEvents = Collections.singletonList(new EventData(record.value()));
+      List<EventData> allEvents = Collections.singletonList(new EventData(String.valueOf(record.value())));
       sender.publishEvents(allEvents);
     } catch (Exception e) {
       log.error("Failed to send message to event hub: {}", e.getLocalizedMessage());
