@@ -9,7 +9,7 @@ RUN mkdir -p /opt/api/work
 # create the dir where we will mount out config map
 RUN mkdir /configmap
 RUN mkdir /app
-COPY ./event.jar /opt/api/event.jar
+COPY ./ideal-node-lde-integration-api.jar /opt/api/ideal-node-lde-integration-api.jar
 
 COPY ./startup.sh /usr/bin/startup.sh
 RUN chmod +x /usr/bin/startup.sh
