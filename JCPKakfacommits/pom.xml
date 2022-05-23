@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.jcp</groupId>
-    <artifactId>event</artifactId>
+    <artifactId>ideal-node-lde-integration-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>event</name>
+    <name>EventApplication</name>
     <description>JCP Event hub and commits integration</description>
     <properties>
         <java.version>1.8</java.version>
