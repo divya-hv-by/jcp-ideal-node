@@ -2,5 +2,5 @@
 
 # Start common-kafka-consumer Server
 #cd /configmap && java $JAVA_OPTS $JVM_MEM_ARGS $JVM_PERF_ARGS -jar /opt/api/microservice-sourcing-tsc-optimizer-app.jar
-cd /configmap && java $JAVA_OPTS $JVM_MEM_ARGS $JVM_PERF_ARGS -jar /opt/api/ideal-node-lde-integration-api.jar.jar
+cd /configmap && java $JAVA_OPTS $JVM_MEM_ARGS $JVM_PERF_ARGS -jar /opt/api/ideal-node-lde-integration-api.jar
 
