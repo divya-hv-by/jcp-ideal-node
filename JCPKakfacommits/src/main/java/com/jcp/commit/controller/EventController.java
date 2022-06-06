@@ -69,7 +69,7 @@ public class EventController {
 
         final long start = System.currentTimeMillis();
 
-       idealNodeService.readHistoricData("/Users/deepakyadav/Desktop/ram.csv");
+       idealNodeService.readHistoricData("ram.csv");
 
         log.info("Read file: Time taken : {} ms", System.currentTimeMillis() - start);
 
