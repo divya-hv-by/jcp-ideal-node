@@ -6,6 +6,7 @@ import com.jcp.commit.dto.audit.CommitsResponseDto;
 import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
 import com.jcp.commit.kafka.AbstractKafkaConsumerImpl;
 import com.jcp.commit.hub.EventSender;
+import com.jcp.commit.util.DtoToJsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -23,6 +24,9 @@ public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<CommitsRespons
 
   @Autowired
   private EventSender sender;
+
+  @Autowired
+  private DtoToJsonMapper dtoToJsonMapper;
 
   @Override
   protected Class<CommitsResponseKeyDto> getKeyClass() {
@@ -61,7 +65,7 @@ public class KafkaEventConsumer extends AbstractKafkaConsumerImpl<CommitsRespons
             record.value());
 
     try {
-      List<EventData> allEvents = Collections.singletonList(new EventData(String.valueOf(record.value())));
+      List<EventData> allEvents = Collections.singletonList(new EventData(dtoToJsonMapper.toPojo(record.value())));
       sender.publishEvents(allEvents);
     } catch (Exception e) {
       log.error("Failed to send message to event hub: {}", e.getLocalizedMessage());
