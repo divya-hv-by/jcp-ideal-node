@@ -117,7 +117,7 @@ public class IdealNodeMapper {
 
             OrderLines line = OrderLines.builder()
                     .lineId(orderLines.getLineId())
-                    .itemId(ItemId.builder().itemId(orderLines.getProductId())
+                    .itemId(ItemId.builder().id(orderLines.getProductId())
                             .uom(idealNodeRequestDto.getCartLines().get(0).getUom()).build())
                     .quantity(orderLines.getQuantity())
                     .keepTogetherId(orderLines.getKeepTogetherId())

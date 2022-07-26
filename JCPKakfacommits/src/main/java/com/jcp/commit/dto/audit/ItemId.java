@@ -15,6 +15,6 @@ import java.io.Serializable;
 @Slf4j
 public class ItemId implements Serializable {
 
-    private String itemId;
+    private String id;
     private String uom;
 }
