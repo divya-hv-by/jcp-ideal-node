@@ -14,11 +14,18 @@ import com.jcp.commit.service.IdealNodeService;
 import com.jcp.commit.util.ApiToAuditResponseMapper;
 import com.jcp.commit.util.IdealNodeMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,34 +54,43 @@ public class IdealNodeServiceImpl implements IdealNodeService {
     @Autowired
     private Properties properties;
 
-    @Async("JCPThreadPoolBean")
-    public void readHistoricData(String filePath) throws IOException {
+    @Value("${ideal.node.historic.data.file.path:}")
+    private String directory;
 
+    @Async("JCPThreadPoolBean")
+    public void readHistoricData(String fileName) throws IOException {
+
+        final long startTime = System.currentTimeMillis();
+        log.info("Reading file :{}", fileName);
         try {
-            List<List<String>> parsedFileData = readRecords(filePath);
+            List<List<String>> parsedFileData = readRecords(fileName);
+            log.info("Number of lines from {} : {}",fileName, parsedFileData.size());
             List<HistoricDataIdealNodeEntity> idealNodeEntityList = new ArrayList<>();
             parsedFileData.forEach(data -> {
                 try {
                     HistoricDataIdealNodeEntity historicDataIdealNodeEntity = idealNodeMapper.getIdealNodeEntity(data);
                     idealNodeEntityList.add(historicDataIdealNodeEntity);
                 } catch (Exception exception) {
-                    log.error("Exception while parsing lines of file : {} ", exception.getLocalizedMessage());
+                    log.error("Exception while parsing lines of file : {} ", exception.getStackTrace());
                 }
             });
 
-            idealNodeRepository.saveAll(idealNodeEntityList);
+            List<HistoricDataIdealNodeEntity> entities = idealNodeRepository.saveAll(idealNodeEntityList);
             log.info("Persisted file record for day : {} ", LocalDateTime.now());
+            log.info("Stored {} entries in DB", entities.size());
 
         } catch (Exception e) {
-
             log.error("Exception while reading file : {} ", e.getLocalizedMessage());
         }
+        log.info("Read file: Time taken : {} ms", System.currentTimeMillis() - startTime);
 
     }
 
-    public List<List<String>> readRecords(String filePath) throws FileNotFoundException {
+    public List<List<String>> readRecords(String fileName) throws FileNotFoundException {
 
+        String filePath = directory + (directory.endsWith("/") ? "" : "/") + fileName;
         File inputF = new File(filePath);
+        log.info("file path: {}", inputF.getAbsolutePath());
         InputStream inputFS = new FileInputStream(inputF);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputFS))) {
             return reader.lines()
@@ -85,6 +101,11 @@ public class IdealNodeServiceImpl implements IdealNodeService {
             log.error("Exception while reading file : {} ", e.getLocalizedMessage());
             throw new UncheckedIOException(e);
         }
+    }
+
+    public boolean isFileValid(String fileName) {
+        String filePath = directory + (directory.endsWith("/") ? "" : "/") + fileName;
+        return Files.exists(Paths.get(filePath));
     }
 
     public void processHistoricData(LocalDateTime startTime, LocalDateTime endTime) {
