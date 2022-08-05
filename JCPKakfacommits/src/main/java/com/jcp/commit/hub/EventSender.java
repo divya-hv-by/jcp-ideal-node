@@ -1,12 +1,13 @@
 package com.jcp.commit.hub;
 
-import com.azure.messaging.eventhubs.*;
+import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventDataBatch;
+import com.azure.messaging.eventhubs.EventHubClientBuilder;
+import com.azure.messaging.eventhubs.EventHubProducerClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.xml.ws.ServiceMode;
-import java.util.Arrays;
 import java.util.List;
 
 @Service

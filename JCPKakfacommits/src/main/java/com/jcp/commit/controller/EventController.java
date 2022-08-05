@@ -25,6 +25,8 @@ public class EventController {
 
     static final String ENDPOINT = "/event";
 
+    static final String SUCCESS_MESSAGE = "Success";
+
     @Autowired
     private KafkaEventProducer kafkaEventProducer;
 
@@ -41,7 +43,7 @@ public class EventController {
 
         return ResponseEntity
                 .ok()
-                .body("Success");
+                .body(SUCCESS_MESSAGE);
 
     }
 
@@ -50,7 +52,7 @@ public class EventController {
 
         return ResponseEntity
                 .ok()
-                .body("Success");
+                .body(SUCCESS_MESSAGE);
 
     }
 
@@ -60,22 +62,24 @@ public class EventController {
         eventReceiver.receiveMessage();
         return ResponseEntity
                 .ok()
-                .body("Success");
+                .body(SUCCESS_MESSAGE);
 
     }
 
-    @GetMapping("/hub/read-historic-data")
-    public ResponseEntity<String> readHistoricData() throws IOException {
+    @GetMapping("/hub/read-historic-data/{fileName}")
+    public ResponseEntity<String> readHistoricData(@PathVariable("fileName") String fileName) throws IOException {
 
-        final long start = System.currentTimeMillis();
-
-       idealNodeService.readHistoricData("ram.csv");
-
-        log.info("Read file: Time taken : {} ms", System.currentTimeMillis() - start);
+        log.info("Requested file : {}", fileName);
+        if (!idealNodeService.isFileValid(fileName)) {
+            return ResponseEntity
+                    .unprocessableEntity()
+                    .body("Failed: File does not exists / Invalid");
+        }
+        idealNodeService.readHistoricData(fileName);
 
         return ResponseEntity
                 .ok()
-                .body("Success");
+                .body(SUCCESS_MESSAGE);
 
     }
 
@@ -94,7 +98,7 @@ public class EventController {
         idealNodeService.processHistoricData(startTime, endTime);
         return ResponseEntity
                 .ok()
-                .body("Success");
+                .body(SUCCESS_MESSAGE);
 
     }
 

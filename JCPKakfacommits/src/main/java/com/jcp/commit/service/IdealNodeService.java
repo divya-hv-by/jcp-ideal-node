@@ -12,6 +12,8 @@ public interface IdealNodeService {
 
   void readHistoricData(String filePath) throws IOException;
 
+  boolean isFileValid(String fileName);
+
   void processHistoricData(LocalDateTime startTime, LocalDateTime endTime);
 
   IdealNodeResponseDto getIdealNode(IdealNodeRequestDto idealNodeRequestDto);
