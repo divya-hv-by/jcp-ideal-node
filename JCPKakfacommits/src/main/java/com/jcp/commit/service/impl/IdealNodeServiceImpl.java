@@ -8,6 +8,7 @@ import com.jcp.commit.dto.request.CartLines;
 import com.jcp.commit.dto.request.IdealNodeRequestDto;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
 import com.jcp.commit.entity.HistoricDataIdealNodeEntity;
+import com.jcp.commit.entity.IdealNodeEntityPK;
 import com.jcp.commit.kafka.service.KafkaEventProducer;
 import com.jcp.commit.repository.IdealNodeRepository;
 import com.jcp.commit.service.IdealNodeService;
@@ -31,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.reducing;
 
 @Service
 @Slf4j
@@ -54,59 +56,6 @@ public class IdealNodeServiceImpl implements IdealNodeService {
     @Autowired
     private Properties properties;
 
-    @Value("${ideal.node.historic.data.file.path:}")
-    private String directory;
-
-    @Async("JCPThreadPoolBean")
-    public void readHistoricData(String fileName) throws IOException {
-
-        final long startTime = System.currentTimeMillis();
-        log.info("Reading file :{}", fileName);
-        try {
-            List<List<String>> parsedFileData = readRecords(fileName);
-            log.info("Number of lines from {} : {}",fileName, parsedFileData.size());
-            List<HistoricDataIdealNodeEntity> idealNodeEntityList = new ArrayList<>();
-            parsedFileData.forEach(data -> {
-                try {
-                    HistoricDataIdealNodeEntity historicDataIdealNodeEntity = idealNodeMapper.getIdealNodeEntity(data);
-                    idealNodeEntityList.add(historicDataIdealNodeEntity);
-                } catch (Exception exception) {
-                    log.error("Exception while parsing lines of file : {} ", exception.getStackTrace());
-                }
-            });
-
-            List<HistoricDataIdealNodeEntity> entities = idealNodeRepository.saveAll(idealNodeEntityList);
-            log.info("Persisted file record for day : {} ", LocalDateTime.now());
-            log.info("Stored {} entries in DB", entities.size());
-
-        } catch (Exception e) {
-            log.error("Exception while reading file : {} ", e.getLocalizedMessage());
-        }
-        log.info("Read file: Time taken : {} ms", System.currentTimeMillis() - startTime);
-
-    }
-
-    public List<List<String>> readRecords(String fileName) throws FileNotFoundException {
-
-        String filePath = directory + (directory.endsWith("/") ? "" : "/") + fileName;
-        File inputF = new File(filePath);
-        log.info("file path: {}", inputF.getAbsolutePath());
-        InputStream inputFS = new FileInputStream(inputF);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputFS))) {
-            return reader.lines()
-                    .skip(1)
-                    .map(line -> Arrays.asList(line.split("\n")))
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            log.error("Exception while reading file : {} ", e.getLocalizedMessage());
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public boolean isFileValid(String fileName) {
-        String filePath = directory + (directory.endsWith("/") ? "" : "/") + fileName;
-        return Files.exists(Paths.get(filePath));
-    }
 
     public void processHistoricData(LocalDateTime startTime, LocalDateTime endTime) {
 
@@ -160,6 +109,11 @@ public class IdealNodeServiceImpl implements IdealNodeService {
 
             });
         });
+    }
+
+    @Override
+    public void processHistoricDataByDate(LocalDate date) {
+        List<HistoricDataIdealNodeEntity> byOrderCreatedDate = idealNodeRepository.findByOrderCreatedDate(date);
     }
 
     private CommitsResponseDto getIdealNodeForOrderAndSendToTopic(IdealNodeRequestDto idealNodeRequestDto, List<HistoricDataIdealNodeEntity> idealNodeOrderLineList) {

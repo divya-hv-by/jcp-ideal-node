@@ -6,6 +6,7 @@ import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,6 +15,10 @@ public interface IdealNodeRepository extends CassandraRepository<HistoricDataIde
 
     @AllowFiltering
     List<HistoricDataIdealNodeEntity> findByOrderDateBetween(LocalDateTime startTime, LocalDateTime endTime);
+
+    List<HistoricDataIdealNodeEntity> findByKeyOrderNumber(String orderNumber);
+
+    List<HistoricDataIdealNodeEntity> findByOrderCreatedDate(LocalDate date);
 
 }
 

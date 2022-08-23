@@ -5,10 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.Indexed;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -68,6 +70,11 @@ public class HistoricDataIdealNodeEntity implements Serializable {
 
     @Column("warehouse_class")
     private String warehouseClass;
+
+    // will use to query all orders based on date column will be indexed
+    @Column("order_created_date")
+    @Indexed
+    private LocalDate orderCreatedDate;
 
     @Column("created_date")
     private LocalDateTime createdDateTime;

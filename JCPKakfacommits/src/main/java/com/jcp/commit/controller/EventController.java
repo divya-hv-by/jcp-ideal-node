@@ -7,16 +7,24 @@ import com.jcp.commit.dto.request.StartEndDateRequestDto;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
 import com.jcp.commit.hub.EventReceiver;
 import com.jcp.commit.kafka.service.KafkaEventProducer;
+import com.jcp.commit.service.FileService;
 import com.jcp.commit.service.IdealNodeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -35,6 +43,9 @@ public class EventController {
 
     @Autowired
     private IdealNodeService idealNodeService;
+
+    @Autowired
+    private FileService fileService;
 
     @PostMapping("/hub/post-ideal-node-to-kafka")
     public ResponseEntity<String> produceKafkaMessage(@Valid @RequestBody CommitsResponseDto commitsResponseDto) {
@@ -66,23 +77,6 @@ public class EventController {
 
     }
 
-    @GetMapping("/hub/read-historic-data/{fileName}")
-    public ResponseEntity<String> readHistoricData(@PathVariable("fileName") String fileName) throws IOException {
-
-        log.info("Requested file : {}", fileName);
-        if (!idealNodeService.isFileValid(fileName)) {
-            return ResponseEntity
-                    .unprocessableEntity()
-                    .body("Failed: File does not exists / Invalid");
-        }
-        idealNodeService.readHistoricData(fileName);
-
-        return ResponseEntity
-                .ok()
-                .body(SUCCESS_MESSAGE);
-
-    }
-
     @PostMapping("/hub/process-historic-data")
     public ResponseEntity<String> processHistoricData(@Valid @RequestBody StartEndDateRequestDto startEndDateRequestDto)
             throws IOException {
@@ -102,18 +96,46 @@ public class EventController {
 
     }
 
+    @PostMapping("/hub/process-historic-data/{date}")
+    public ResponseEntity<String> processHistoricDataByDate(@Valid LocalDate date)
+            throws IOException {
+
+        final long start = System.currentTimeMillis();
+
+        idealNodeService.processHistoricDataByDate(date);
+        return ResponseEntity
+                .ok()
+                .body(SUCCESS_MESSAGE);
+
+    }
+
     @PostMapping("/hub/ideal-node")
     public ResponseEntity<IdealNodeResponseDto> getIdealNode(@Valid @RequestBody IdealNodeRequestDto idealNodeRequestDto) {
 
         final long start = System.currentTimeMillis();
 
         IdealNodeResponseDto idealNode = idealNodeService.getIdealNode(idealNodeRequestDto);
-
         log.info("Ideal node : Time taken : {} ms", System.currentTimeMillis() - start);
-
         return ResponseEntity
                 .ok()
                 .body(idealNode);
 
+    }
+
+    @PostMapping("/uploadFile")
+    public ResponseEntity<Map<String,String>> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+        Map<String, String> resp = new HashMap<>();
+        resp.put("timestamp", Calendar.getInstance().getTime().toString());
+        resp.put("status", "failed");
+        if (ObjectUtils.isEmpty(file) || file.isEmpty()) {
+            resp.put("message", "Invalid / Empty file");
+        }
+        byte[] bytes = file.getBytes();
+        String fileName = file.getOriginalFilename();
+        boolean saved = fileService.saveFile(fileName, bytes);
+        if (saved) {
+            resp.put("status","success");
+        }
+        return ResponseEntity.ok(resp);
     }
 }

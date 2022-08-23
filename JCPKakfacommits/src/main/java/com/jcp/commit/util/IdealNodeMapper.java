@@ -24,8 +24,8 @@ public class IdealNodeMapper {
     @Autowired
     private Properties properties;
 
-    public HistoricDataIdealNodeEntity getIdealNodeEntity(List<String> data) {
-        List<String> lineRecord = Arrays.stream(data.get(0).split(",")).collect(Collectors.toList());
+    public HistoricDataIdealNodeEntity getIdealNodeEntity(String data) {
+        List<String> lineRecord = Arrays.stream(data.split(",")).collect(Collectors.toList());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         List<String> emptyString = new ArrayList<>();
         emptyString.add("");
@@ -39,6 +39,7 @@ public class IdealNodeMapper {
                 .itemDescription(lineRecord.get(7))
                 .quantity(lineRecord.get(6).substring(1, lineRecord.get(6).length() - 1))
                 .orderDate(dateTime)
+                .orderCreatedDate(dateTime.toLocalDate())
                 .zipCode(emptyString.contains(lineRecord.get(17)) ? null : lineRecord.get(17).substring(1, lineRecord.get(17).length() - 1))
                 .serviceCode(emptyString.contains(lineRecord.get(4)) ? null : lineRecord.get(4).substring(1, lineRecord.get(4).length() - 1))
                 .price(emptyString.contains(lineRecord.get(8)) ? null : lineRecord.get(8).substring(1, lineRecord.get(8).length() - 1))
