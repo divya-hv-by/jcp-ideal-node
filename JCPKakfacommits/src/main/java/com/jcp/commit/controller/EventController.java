@@ -1,5 +1,6 @@
 package com.jcp.commit.controller;
 
+import com.azure.core.annotation.QueryParam;
 import com.jcp.commit.dto.audit.CommitsResponseDto;
 import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
 import com.jcp.commit.dto.request.IdealNodeRequestDto;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -96,13 +98,14 @@ public class EventController {
 
     }
 
-    @PostMapping("/hub/process-historic-data/{date}")
-    public ResponseEntity<String> processHistoricDataByDate(@Valid LocalDate date)
+    @GetMapping("/hub/process-historic-data/{date}")
+    public ResponseEntity<String> processHistoricDataByDate(@PathVariable String date, @RequestParam String sortingFlag)
             throws IOException {
+
 
         final long start = System.currentTimeMillis();
 
-        idealNodeService.processHistoricDataByDate(date);
+        idealNodeService.processHistoricDataByDate(LocalDate.parse(date), Boolean.valueOf(sortingFlag));
         return ResponseEntity
                 .ok()
                 .body(SUCCESS_MESSAGE);

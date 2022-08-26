@@ -6,6 +6,7 @@ import com.jcp.commit.dto.audit.CommitsResponseDto;
 import com.jcp.commit.dto.audit.CommitsResponseKeyDto;
 import com.jcp.commit.hub.EventSender;
 import com.jcp.commit.kafka.AbstractKafkaConsumerImpl;
+import com.jcp.commit.service.IdealNodeService;
 import com.jcp.commit.util.DtoToJsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -29,6 +30,9 @@ public class KafkaOrderNumberConsumer extends AbstractKafkaConsumerImpl<String, 
   @Autowired
   private DtoToJsonMapper dtoToJsonMapper;
 
+  @Autowired
+  private IdealNodeService idealNodeService;
+
   @Override
   protected Class<String> getKeyClass() {
     return String.class;
@@ -43,6 +47,8 @@ public class KafkaOrderNumberConsumer extends AbstractKafkaConsumerImpl<String, 
   protected String getTopicName() {
     return ORDER_GROUPING_TOPIC;
   }
+
+
 
   @Override
   public void logResponse(ConsumerRecord<String, String> shipmentUpdatesConsumerRecord, boolean isAutoCommit) {
@@ -64,7 +70,7 @@ public class KafkaOrderNumberConsumer extends AbstractKafkaConsumerImpl<String, 
 
     log.info("Receive shipment update, Received mesage. Key: {}, value : {} ", record.key(),
             record.value());
-
+    idealNodeService.sendIdealNodeForOrderToEventTopic(record.value());
 
   }
 }

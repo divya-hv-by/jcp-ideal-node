@@ -8,24 +8,16 @@ import com.jcp.commit.dto.request.CartLines;
 import com.jcp.commit.dto.request.IdealNodeRequestDto;
 import com.jcp.commit.dto.response.IdealNodeResponseDto;
 import com.jcp.commit.entity.HistoricDataIdealNodeEntity;
-import com.jcp.commit.entity.IdealNodeEntityPK;
 import com.jcp.commit.kafka.service.KafkaEventProducer;
+import com.jcp.commit.kafka.service.KafkaOrderNumberProducer;
 import com.jcp.commit.repository.IdealNodeRepository;
 import com.jcp.commit.service.IdealNodeService;
 import com.jcp.commit.util.ApiToAuditResponseMapper;
 import com.jcp.commit.util.IdealNodeMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -52,6 +44,9 @@ public class IdealNodeServiceImpl implements IdealNodeService {
 
     @Autowired
     private KafkaEventProducer kafkaEventProducer;
+
+    @Autowired
+    private KafkaOrderNumberProducer kafkaOrderNumberProducer;
 
     @Autowired
     private Properties properties;
@@ -112,9 +107,46 @@ public class IdealNodeServiceImpl implements IdealNodeService {
     }
 
     @Override
-    public void processHistoricDataByDate(LocalDate date) {
-        List<HistoricDataIdealNodeEntity> byOrderCreatedDate = idealNodeRepository.findByOrderCreatedDate(date);
+    public void processHistoricDataByDate(LocalDate date, Boolean sortingFlag) {
+        List<HistoricDataIdealNodeEntity> byOrderCreatedDateList = idealNodeRepository.findByOrderCreatedDate(date);
+
+        if(!sortingFlag){
+
+            List<HistoricDataIdealNodeEntity> sortedOrderCreatedDateList = byOrderCreatedDateList.stream().sorted(Comparator.comparing(HistoricDataIdealNodeEntity::getOrderDate)).collect(Collectors.toList());
+            List<String> sortedOrderNumbersList = sortedOrderCreatedDateList.stream().map(f->f.getKey().getOrderNumber()).collect(Collectors.toList());
+            Set<String> sortedOrderNumbersSet = new TreeSet<>();
+
+            sortedOrderNumbersList.stream().forEach(orderNo ->{
+                    if(!sortedOrderNumbersSet.contains(orderNo)){
+                    kafkaOrderNumberProducer.send(orderNo,orderNo);
+                    sortedOrderNumbersSet.add(orderNo);}
+            });
+
+        }else{
+        Map<String, List<HistoricDataIdealNodeEntity>> idealNodeGroupedByItem =
+                byOrderCreatedDateList.stream().collect(groupingBy(HistoricDataIdealNodeEntity::getItemId));
+        Map<String, Integer> itemQtyMap = new HashMap<>();
+
+        idealNodeGroupedByItem.forEach((item, itemIdealNode) -> {
+            itemQtyMap.put(item, itemIdealNode.stream().mapToInt(line -> Integer.parseInt(line.getQuantity())).sum());
+        });
+                    Map<String, Integer> sortItemByCount = itemQtyMap.entrySet()
+                .stream()
+                .sorted((Map.Entry.<String, Integer>comparingByValue().reversed()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+                    System.out.println(sortItemByCount.size());
+                    List<String> orderNumberList = new ArrayList<>();
+
+            sortItemByCount.forEach( (itemId,count) -> idealNodeGroupedByItem.get(itemId).forEach(i-> orderNumberList.add(i.getKey().getOrderNumber())));
+            orderNumberList.stream().distinct().collect(Collectors.toList()).forEach(orderNo ->kafkaOrderNumberProducer.send(orderNo,orderNo));
+        }
+
+
+
     }
+
+
 
     private CommitsResponseDto getIdealNodeForOrderAndSendToTopic(IdealNodeRequestDto idealNodeRequestDto, List<HistoricDataIdealNodeEntity> idealNodeOrderLineList) {
 
@@ -137,6 +169,13 @@ public class IdealNodeServiceImpl implements IdealNodeService {
 
         return commitsAdaptor.getIdealNode(idealNodeRequestDto);
 
+    }
+
+    public CommitsResponseDto sendIdealNodeForOrderToEventTopic(String orderNo) {
+        List<HistoricDataIdealNodeEntity> idealNodeOrderLineList = idealNodeRepository.findByKeyOrderNumber(orderNo);
+        IdealNodeRequestDto idealNodeRequestDto = idealNodeMapper.getIdealNodeRequest(idealNodeOrderLineList, orderNo);
+
+        return getIdealNodeForOrderAndSendToTopic(idealNodeRequestDto, idealNodeOrderLineList);
     }
 
 }
